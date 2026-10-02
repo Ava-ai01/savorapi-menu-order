@@ -1,6 +1,6 @@
 > **Live demo:** [https://savorapi-menu-order-api.vercel.app](https://savorapi-menu-order-api.vercel.app)
 
-![Demo screenshot](screenshots/desktop-hero.png)
+![Project cover — as shown on Upwork](screenshots/upwork-cover.png)
 
 ---
 
