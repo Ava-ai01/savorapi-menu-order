@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu &amp; Order API — Case Study | Samson, Backend Developer</title>
+  <meta name="description" content="Case study: a Flask REST API that replaced a restaurant's phone-order chaos with online ordering — 9 endpoints, server-side pricing, JSON errors. Built by Samson." />
+  <link rel="canonical" href="https://portfolio.example/02-menu-order-api/showcase.html" />
+
+  <!-- Open Graph / social -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Menu &amp; Order API — a restaurant's own online ordering, no commissions" />
+  <meta property="og:description" content="A dependency-light Flask REST API: menu CRUD, order intake, kitchen status tracking. 9 endpoints, always-JSON errors, demo-ready in minutes." />
+  <meta property="og:image" content="https://portfolio.example/02-menu-order-api/screenshots/desktop-hero.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Menu & Order API — a restaurant's own online ordering, no commissions",
+    "description": "Case study of a Flask REST API replacing phone-order chaos with menu CRUD, order intake and kitchen status tracking.",
+    "author": { "@type": "Person", "name": "Samson" },
+    "proficiencyLevel": "Beginner"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="showcase.css" />
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="siteNav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="Back to top">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 18H19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="brand-text">menu-order<em>.api</em></span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#problem">The problem</a>
+        <a href="#approach">The approach</a>
+        <a href="#code">Code</a>
+        <a href="#try">Try it</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-sm" href="#contact">Discuss your project</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Full-screen mobile menu -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <nav aria-label="Mobile">
+      <a href="#problem">The problem</a>
+      <a href="#approach">The approach</a>
+      <a href="#code">Code</a>
+      <a href="#try">Try it</a>
+      <a href="#contact" class="btn btn-primary btn-lg">Discuss your project</a>
+    </nav>
+    <p class="mobile-menu-foot">Flask REST API · menu &amp; orders<br />case study · 2026</p>
+  </div>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-label="Case study introduction">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="kicker hero-kicker"><span class="kicker-rule"></span>Case study · Backend API</p>
+          <h1 class="hero-title">
+            <span class="word"><span class="word-inner">Ordering,</span></span>
+            <span class="word"><span class="word-inner"><em>minus</em> the</span></span>
+            <span class="word"><span class="word-inner">phone chaos.</span></span>
+          </h1>
+          <p class="lede hero-lede">
+            A dependency-light REST API that lets a restaurant run its <strong>own</strong> online
+            ordering — live menu, order intake, kitchen status tracking. No marketplace commissions,
+            no staff tied up on the phone.
+          </p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary btn-lg" href="#contact">Discuss your project <span class="btn-arrow" aria-hidden="true">→</span></a>
+            <a class="text-link" href="#code">Read the code highlights</a>
+          </div>
+          <dl class="hero-meta">
+            <div><dt>Endpoints</dt><dd>9</dd></div>
+            <div><dt>Dependencies</dt><dd>1</dd></div>
+            <div><dt>Setup time</dt><dd>&lt; 5 min</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-terminal-wrap">
+          <figure class="terminal" aria-label="Sample API session: creating an order and advancing its status">
+            <figcaption class="term-bar">
+              <span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="term-title">ember-oak — api demo</span>
+              <span class="term-live"><i aria-hidden="true"></i>live</span>
+            </figcaption>
+            <div class="term-body">
+<pre><code><span class="p">$</span> curl -X POST localhost:5000/api/orders \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"customer_name":"Jane Doe",
+      "items":[{"menu_id":4,"quantity":2}]}'</span>
+
+<span class="c">→ 201 Created</span>
+{
+  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"status"</span>: <span class="s">"received"</span>,
+  <span class="k">"items"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"Oak-Fired Ribeye"</span>,
+      <span class="k">"quantity"</span>: <span class="n">2</span>, <span class="k">"line_total"</span>: <span class="n">92.0</span> }
+  ],
+  <span class="k">"total"</span>: <span class="n">107.0</span>
+}
+<span class="p">$</span> curl -X PATCH localhost:5000/api/orders/1 \
+  -d <span class="s">'{"status":"preparing"}'</span>   <span class="c">→ 200 OK</span>
+<span class="p">$</span> <span class="caret" aria-hidden="true"></span></code></pre>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section class="section" id="problem" aria-labelledby="problem-title">
+      <div class="container">
+        <p class="kicker reveal"><span class="kicker-rule"></span>The problem</p>
+        <h2 id="problem-title" class="section-title reveal">The phone rings. <em>Again.</em></h2>
+        <div class="problem-grid">
+          <div class="problem-copy reveal">
+            <p>
+              A busy neighborhood restaurant takes most of its takeout orders the old way:
+              a host with a phone pinned between shoulder and ear, scribbling on a pad while
+              the dining room waits. Every Friday rush, the same story — missed orders,
+              misheard names, and a line forming at the host stand.
+            </p>
+            <p>
+              The "easy" fix is a delivery marketplace. The catch: <strong>15–30% of every
+              sale</strong> walks out the door in commissions, and the customer relationship —
+              the emails, the repeat visits — belongs to the app, not the restaurant.
+            </p>
+            <p class="problem-answer">
+              The brief: give the restaurant its <em>own</em> ordering engine — something a
+              website or mobile app can talk to, that the owner fully controls, cheap to run
+              and easy to extend. No per-order tax.
+            </p>
+          </div>
+          <ul class="problem-facts reveal" data-reveal-delay="1" aria-label="Why phone and marketplace ordering hurts">
+            <li>
+              <strong class="fact-num">30%</strong>
+              <span>Commission ceiling on marketplace orders — per sale, forever</span>
+            </li>
+            <li>
+              <strong class="fact-num">2×</strong>
+              <span>Staff time lost: taking the call <em>and</em> re-keying it for the kitchen</span>
+            </li>
+            <li>
+              <strong class="fact-num">0</strong>
+              <span>Customer emails the restaurant owns when ordering through an app</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ APPROACH ============ -->
+    <section class="section section-alt" id="approach" aria-labelledby="approach-title">
+      <div class="container">
+        <p class="kicker kicker-center reveal"><span class="kicker-rule"></span>The approach<span class="kicker-rule"></span></p>
+        <h2 id="approach-title" class="section-title center reveal">Nine endpoints, <em>one</em> job each</h2>
+        <p class="section-sub center reveal">
+          A small Flask service split into two clean domains — the <strong>menu</strong> and the
+          <strong>orders</strong> — plus a self-documenting <code>/api/docs</code> route, so any
+          front-end or kitchen display can integrate without a manual.
+        </p>
+
+        <div class="endpoints" role="list" aria-label="API endpoint reference">
+          <div class="ep-group reveal" role="listitem">
+            <h3 class="ep-group-title"><span class="ep-group-tag">menu</span>Menu management — full CRUD</h3>
+            <ul class="ep-list">
+              <li><span class="method m-get">GET</span><code class="ep-path">/api/menu</code><span class="ep-desc">List dishes · <code>?category=main</code> filters</span></li>
+              <li><span class="method m-post">POST</span><code class="ep-path">/api/menu</code><span class="ep-desc">Create a dish — name, price, category validated</span></li>
+              <li><span class="method m-get">GET</span><code class="ep-path">/api/menu/&lt;id&gt;</code><span class="ep-desc">Fetch one dish</span></li>
+              <li><span class="method m-put">PUT</span><code class="ep-path">/api/menu/&lt;id&gt;</code><span class="ep-desc">Replace a dish (full payload)</span></li>
+              <li><span class="method m-delete">DELETE</span><code class="ep-path">/api/menu/&lt;id&gt;</code><span class="ep-desc">Remove a dish — <code>204</code> on success</span></li>
+            </ul>
+          </div>
+          <div class="ep-group reveal" data-reveal-delay="1" role="listitem">
+            <h3 class="ep-group-title"><span class="ep-group-tag">orders</span>Order intake &amp; kitchen status</h3>
+            <ul class="ep-list">
+              <li><span class="method m-get">GET</span><code class="ep-path">/api/orders</code><span class="ep-desc">List orders · <code>?status=preparing</code> filters</span></li>
+              <li><span class="method m-post">POST</span><code class="ep-path">/api/orders</code><span class="ep-desc">Create an order — prices resolved server-side, totals computed</span></li>
+              <li><span class="method m-get">GET</span><code class="ep-path">/api/orders/&lt;id&gt;</code><span class="ep-desc">Fetch one order with line items</span></li>
+              <li><span class="method m-patch">PATCH</span><code class="ep-path">/api/orders/&lt;id&gt;</code><span class="ep-desc">Advance status: received → preparing → ready → completed</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="principles" aria-label="Design decisions">
+          <div class="principle reveal">
+            <h3>Prices never trust the client</h3>
+            <p>Orders reference menu ids only. The server resolves each dish, checks availability, and computes line totals — a tampered request can't invent a discount.</p>
+          </div>
+          <div class="principle reveal" data-reveal-delay="1">
+            <h3>Errors are always JSON</h3>
+            <p>Every failure — validation, missing record, wrong method — returns <code>{"error": "…"}</code> with the right status. Front-ends can show them to users directly; nothing ever comes back as an HTML error page.</p>
+          </div>
+          <div class="principle reveal" data-reveal-delay="2">
+            <h3>Demo in minutes, grow later</h3>
+            <p>Ships with 12 realistic seeded dishes and a single dependency (Flask). Storage is in-memory for the demo and swaps for SQLite or Postgres without changing the API contract.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CODE ============ -->
+    <section class="section" id="code" aria-labelledby="code-title">
+      <div class="container">
+        <p class="kicker reveal"><span class="kicker-rule"></span>Code highlights</p>
+        <h2 id="code-title" class="section-title reveal">Pulled straight from <em>app.py</em></h2>
+        <p class="section-sub reveal">Not pseudocode — these are real excerpts, and what each one buys the client.</p>
+
+        <div class="code-grid">
+          <figure class="code-card reveal">
+            <figcaption class="code-head">
+              <span class="code-file">app.py</span>
+              <span class="code-lang">python</span>
+            </figcaption>
+<pre class="code-body"><code><span class="cm">def build_order(customer_name, line_items):</span>
+    <span class="cd">"""Resolve line items against the menu and
+    compute line/total prices."""</span>
+    resolved = []
+    total = <span class="cn">0.0</span>
+    <span class="ck">for</span> entry <span class="ck">in</span> line_items:
+        ...
+        dish = find_menu(menu_id)
+        <span class="ck">if</span> dish <span class="ck">is None</span>:
+            <span class="ck">return None</span>, <span class="cs">f"No menu item with id {menu_id}."</span>
+        <span class="ck">if not</span> dish[<span class="cs">"available"</span>]:
+            <span class="ck">return None</span>, <span class="cs">f"'{dish['name']}' is currently unavailable."</span>
+        line_total = <span class="cf">round</span>(dish[<span class="cs">"price"</span>] * quantity, <span class="cn">2</span>)
+        total += line_total</code></pre>
+            <p class="code-why"><strong>Why it matters:</strong> every order is priced from the live menu on the server — unavailable dishes are rejected by name, so the kitchen never sees a bad ticket.</p>
+          </figure>
+
+          <figure class="code-card reveal" data-reveal-delay="1">
+            <figcaption class="code-head">
+              <span class="code-file">app.py</span>
+              <span class="code-lang">python</span>
+            </figcaption>
+<pre class="code-body"><code><span class="cm">def validate_menu_payload(data, partial=False):</span>
+    <span class="cd">"""Validate a menu-item payload."""</span>
+    ...
+    <span class="ck">if</span> <span class="cs">"price"</span> <span class="ck">in</span> data:
+        price = data[<span class="cs">"price"</span>]
+        <span class="ck">if</span> (<span class="cf">isinstance</span>(price, bool)
+                <span class="ck">or not</span> <span class="cf">isinstance</span>(price, (<span class="cb">int</span>, <span class="cb">float</span>))
+                <span class="ck">or</span> price &lt;= <span class="cn">0</span>):
+            <span class="ck">return None</span>, <span class="cs">"'price' must be a positive number."</span>
+        item[<span class="cs">"price"</span>] = <span class="cf">round</span>(<span class="cf">float</span>(price), <span class="cn">2</span>)
+    <span class="ck">if</span> <span class="cs">"category"</span> <span class="ck">in</span> data:
+        <span class="ck">if</span> data[<span class="cs">"category"</span>] <span class="ck">not in</span> MENU_CATEGORIES:
+            <span class="ck">return None</span>, <span class="cs">f"'category' must be one of: ..."</span></code></pre>
+            <p class="code-why"><strong>Why it matters:</strong> one shared validator guards both create and replace — strict enough to catch bad data (even Python's <code>true</code>-as-price quirk), clear enough to tell the user exactly what's wrong.</p>
+          </figure>
+
+          <figure class="code-card reveal" data-reveal-delay="2">
+            <figcaption class="code-head">
+              <span class="code-file">app.py</span>
+              <span class="code-lang">python</span>
+            </figcaption>
+<pre class="code-body"><code><span class="cm">def error(message, status):</span>
+    <span class="cd">"""Return a consistent JSON error response."""</span>
+    <span class="ck">return</span> jsonify({<span class="cs">"error"</span>: message}), status
+
+
+<span class="cd">@app.errorhandler(404)</span>
+<span class="cm">def not_found(_e):</span>
+    <span class="ck">return</span> error(<span class="cs">"Not found."</span>, <span class="cn">404</span>)
+
+
+<span class="cd">@app.errorhandler(405)</span>
+<span class="cm">def method_not_allowed(_e):</span>
+    <span class="ck">return</span> error(<span class="cs">"Method not allowed for this endpoint."</span>, <span class="cn">405</span>)</code></pre>
+            <p class="code-why"><strong>Why it matters:</strong> a single <code>error()</code> helper funnels every failure — validation, 404s, wrong methods — into the same JSON shape. No surprise HTML pages for the front-end to choke on.</p>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TRY IT ============ -->
+    <section class="section section-alt" id="try" aria-labelledby="try-title">
+      <div class="container">
+        <p class="kicker kicker-center reveal"><span class="kicker-rule"></span>Try it<span class="kicker-rule"></span></p>
+        <h2 id="try-title" class="section-title center reveal">From menu to <em>kitchen</em> in two calls</h2>
+        <p class="section-sub center reveal">
+          Clone it, run it, place an order — the whole demo fits in a terminal. These are real
+          request/response pairs from the running API.
+        </p>
+
+        <div class="try-grid">
+          <figure class="code-card try-card reveal" aria-label="Example: create an order">
+            <figcaption class="code-head">
+              <span class="code-file">request</span>
+              <button class="copy-btn" type="button" data-copy="curl -X POST http://127.0.0.1:5000/api/orders -H &quot;Content-Type: application/json&quot; -d '{&quot;customer_name&quot;:&quot;Jane Doe&quot;,&quot;items&quot;:[{&quot;menu_id&quot;:4,&quot;quantity&quot;:2},{&quot;menu_id&quot;:11}]}'">Copy</button>
+            </figcaption>
+<pre class="code-body"><code><span class="p">$</span> curl -X POST http://127.0.0.1:5000/api/orders \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"customer_name": "Jane Doe",
+      "items": [{"menu_id": 4, "quantity": 2},
+                {"menu_id": 11}]}'</span></code></pre>
+          </figure>
+          <figure class="code-card try-card reveal" data-reveal-delay="1" aria-label="Example: response for the created order">
+            <figcaption class="code-head">
+              <span class="code-file">response · 201 Created</span>
+            </figcaption>
+<pre class="code-body"><code>{
+  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"status"</span>: <span class="s">"received"</span>,
+  <span class="k">"customer_name"</span>: <span class="s">"Jane Doe"</span>,
+  <span class="k">"items"</span>: [
+    { <span class="k">"menu_id"</span>: <span class="n">4</span>,
+      <span class="k">"name"</span>: <span class="s">"Oak-Fired Ribeye"</span>,
+      <span class="k">"unit_price"</span>: <span class="n">46.0</span>,
+      <span class="k">"quantity"</span>: <span class="n">2</span>,
+      <span class="k">"line_total"</span>: <span class="n">92.0</span> },
+    { <span class="k">"menu_id"</span>: <span class="n">11</span>,
+      <span class="k">"name"</span>: <span class="s">"Smoked Old Fashioned"</span>,
+      <span class="k">"unit_price"</span>: <span class="n">15.0</span>,
+      <span class="k">"quantity"</span>: <span class="n">1</span>,
+      <span class="k">"line_total"</span>: <span class="n">15.0</span> }
+  ],
+  <span class="k">"total"</span>: <span class="n">107.0</span>
+}</code></pre>
+          </figure>
+        </div>
+
+        <div class="run-steps reveal" aria-label="How to run the API">
+          <p class="run-label">Run it yourself</p>
+          <ol>
+            <li><code>pip install -r requirements.txt</code></li>
+            <li><code>python app.py</code></li>
+            <li>Open <code>http://127.0.0.1:5000/api/docs</code></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <p class="kicker kicker-center reveal"><span class="kicker-rule"></span>Your project<span class="kicker-rule"></span></p>
+        <h2 id="contact-title" class="contact-title reveal">Need a backend that <em>just works?</em></h2>
+        <p class="section-sub center reveal">
+          I build clean, documented APIs like this one — scoped small, shipped fast, easy for your
+          team to take over. Tell me what you're ordering.
+        </p>
+        <div class="contact-ctas reveal">
+          <a class="btn btn-primary btn-lg" href="mailto:hello@example.com?subject=Project%20inquiry%20—%20backend%20API">Discuss your project <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <p class="contact-note">Prefer email? <a href="mailto:hello@example.com?subject=Project%20inquiry%20—%20backend%20API">hello@example.com</a> — I reply within a day.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-statement reveal">Ship the menu.<br /><em>Keep the margin.</em></p>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="#top" aria-label="Back to top">
+            <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 18H19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            <span class="brand-text">menu-order<em>.api</em></span>
+          </a>
+          <p class="footer-tag">A Flask REST API case study<br />by Samson · 2026</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="#problem">The problem</a>
+          <a href="#approach">The approach</a>
+          <a href="#code">Code highlights</a>
+          <a href="#try">Try it</a>
+        </nav>
+        <address class="footer-contact">
+          <a href="#contact">Discuss your project</a>
+          <a href="mailto:hello@example.com">hello@example.com</a>
+          <span>Backend APIs · Python &amp; Flask</span>
+        </address>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Samson. Portfolio piece 02 — Menu &amp; Order API.</p>
+        <p><a href="README.md">README</a> · <a href="app.py">app.py</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="showcase.js"></script>
+</body>
+</html>
